@@ -17,7 +17,9 @@ public class FlyController : MonoBehaviour
 
     private void Update()
     {
+        //Moves fly forward.
         transform.position += transform.right * speed * Time.deltaTime;
+        //Ensures any flies out of bounds are destroyed.
         if (transform.position.x < -11 || transform.position.x > 11)
         {
             DestroyFly(false);
@@ -28,6 +30,7 @@ public class FlyController : MonoBehaviour
         }
     }
 
+    //Destroys a fly and adds points to total score if caught with tongue.
     public void DestroyFly(bool eaten)
     {
         if (eaten)

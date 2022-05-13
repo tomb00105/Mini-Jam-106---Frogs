@@ -25,15 +25,19 @@ public class SpawnManager : MonoBehaviour
         SpawnFly();    
     }
 
+    //Spawns flies based on time since last spawn
     void SpawnFly()
     {
         int xSpawnPos;
+        //Gets a random y position for the fly to spawn.
         float ySpawnPos = Random.Range(-5f, 5f);
-        if (spawnGap <= 2)
+        //If last spawn was less than a second ago, won't spawn a fly.
+        if (spawnGap <= 1)
         {
             spawnGap += Time.deltaTime;
             return;
         }
+        //If less than 5 seconds since last spawn, may or may not spawn a fly this update.
         else if (spawnGap <= 5)
         {
             if (flyCount < maxFlies)
@@ -41,7 +45,7 @@ public class SpawnManager : MonoBehaviour
                 xSpawnPos = Random.Range(-1, spawnFactor);
                 if (xSpawnPos > -1 && xSpawnPos < spawnFactor - 1)
                 {
-                    Debug.Log("NO SPAWN");
+                    //Debug.Log("NO SPAWN");
                     spawnGap += Time.deltaTime;
                     return;
                 }
@@ -70,6 +74,7 @@ public class SpawnManager : MonoBehaviour
                 return;
             }
         }
+        //If more than 5 seconds since last spawn, spawns a fly.
         else
         {
             if (flyCount < maxFlies)
