@@ -8,6 +8,8 @@ TagManager:
   - Water
   - Fence
   - Enemy
+  - Tongue
+  - Fly
   layers:
   - Default
   - TransparentFX

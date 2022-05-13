@@ -23,13 +23,22 @@ public class GameManager : MonoBehaviour
 
     public int HP = 5;
 
-    public float totalTime = 0;
+    public float totalTime = 60;
 
     public int score = 0;
 
     private void Start()
     {
         SpawnLevel();
+    }
+
+    private void Update()
+    {
+        totalTime -= Time.deltaTime;
+        if (totalTime <= 0)
+        {
+            GameOver();
+        }
     }
 
     //Handles logic if the player finishes their jump on water.
