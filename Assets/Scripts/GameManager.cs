@@ -4,6 +4,21 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    [SerializeField]
+    SpawnManager spawnManager;
+
+    [SerializeField]
+    DataManager dataManager;
+
+    [SerializeField]
+    LevelUIController levelUIController;
+
+    [SerializeField]
+    AudioSource deathAudio;
+
+    [SerializeField]
+    AudioSource gameOverAudio;
+
     public GameObject playerPrefab;
 
     GameObject player;
@@ -17,27 +32,59 @@ public class GameManager : MonoBehaviour
     public int difficulty = 1;
 
     [Range(0, 5)]
-    public int lives = 2;
+    public int lives = 5;
 
     public bool isAlive = true;
 
     public int HP = 5;
 
-    public float totalTime = 60;
+    public float totalTime = 200;
 
     public int score = 0;
 
+    public int totalScore = 0;
+
+    public int fliesCaught = 0;
+
+    private void Awake()
+    {
+        dataManager = GameObject.Find("Data Manager").GetComponent<DataManager>();
+    }
+
     private void Start()
     {
+        difficulty = dataManager.newDifficulty;
         SpawnLevel();
+        Time.timeScale = 1;
     }
 
     private void Update()
     {
         totalTime -= Time.deltaTime;
+        levelUIController.TimeText(totalTime);
         if (totalTime <= 0)
         {
             GameOver();
+        }
+    }
+
+    public void BirdDeath()
+    {
+        lives -= 1;
+        levelUIController.LivesText(lives);
+        if (lives <= 0)
+        {
+            isAlive = false;
+            lives = 0;
+            Destroy(player);
+            GameOver();
+        }
+        else
+        {
+            deathAudio.Play();
+            HP = 5;
+            levelUIController.HPText(HP);
+            player.transform.position = lastLilypad.position;
         }
     }
 
@@ -45,6 +92,7 @@ public class GameManager : MonoBehaviour
     public void HitWater()
     {
         lives -= 1;
+        levelUIController.LivesText(lives);
         if (lives <= 0)
         {
             isAlive = false;
@@ -55,7 +103,9 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            //Splash effects
+            deathAudio.Play();
+            HP = 5;
+            levelUIController.HPText(HP);
             player.transform.position = lastLilypad.position;
         }
     }
@@ -64,6 +114,7 @@ public class GameManager : MonoBehaviour
     public void HitFence()
     {
         lives -= 1;
+        levelUIController.LivesText(lives);
         if (lives <= 0)
         {
             isAlive = false;
@@ -74,7 +125,9 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            //Fence hit effects
+            deathAudio.Play();
+            HP = 5;
+            levelUIController.HPText(HP);
             player.transform.position = lastLilypad.position;
         }
     }
@@ -82,6 +135,17 @@ public class GameManager : MonoBehaviour
     //Spawns lilypads at random locations and then randomly chooses a starting lilypad for the player.
     void SpawnLevel()
     {
+        spawnManager.maxFlies = 10 + 2 * difficulty;
+        spawnManager.minFlySpawnTime = 1 - difficulty / 10;
+        spawnManager.maxFlySpawnTime = 5 - difficulty / 5;
+        spawnManager.flySpawnFactor = 1000 - difficulty * 50;
+
+        spawnManager.maxBirds = 5 + difficulty;
+        spawnManager.minBirdSpawnTime = 2 - difficulty / 10;
+        spawnManager.maxBirdSpawnTime = 6 - difficulty / 2;
+        spawnManager.birdSpawnFactor = 1000 - difficulty * 100;
+
+
         //Spawns fewer lilypads the higher the difficulty.
         for (int i = 0; i < 12 - difficulty; i++)
         {
@@ -130,6 +194,9 @@ public class GameManager : MonoBehaviour
     //Triggered when player lives reaches 0.
     void GameOver()
     {
+        gameOverAudio.Play();
         Time.timeScale = 0;
+        totalScore = score - Mathf.CeilToInt(totalTime / 10) + 5 * lives;
+        levelUIController.GameOver(totalScore);
     }
 }

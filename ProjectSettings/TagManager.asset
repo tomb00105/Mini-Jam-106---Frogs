@@ -10,6 +10,8 @@ TagManager:
   - Enemy
   - Tongue
   - Fly
+  - Bird
+  - Data Manager
   layers:
   - Default
   - TransparentFX

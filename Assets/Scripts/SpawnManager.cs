@@ -7,22 +7,42 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     GameObject flyPrefab;
 
+    [SerializeField]
+    GameObject birdPrefab;
+
     public int flyCount = 0;
 
     public int maxFlies = 10;
 
-    [SerializeField]
-    float spawnGap = 0;
+    public int birdCount = 0;
+
+    public int maxBirds = 5;
 
     [SerializeField]
-    int spawnFactor = 1000;
+    float flySpawnGap = 0;
+
+    public float minFlySpawnTime = 1f;
+
+    public float maxFlySpawnTime = 5f;
+    
+    public int flySpawnFactor = 1000;
+
+    [SerializeField]
+    float birdSpawnGap = 0;
+
+    public float minBirdSpawnTime = 1f;
+
+    public float maxBirdSpawnTime = 6f;
+
+    public int birdSpawnFactor = 1000;
 
     [SerializeField]
     float flyAngleFactor = 25f;
 
     private void Update()
     {
-        SpawnFly();    
+        SpawnFly();
+        SpawnBird();
     }
 
     //Spawns flies based on time since last spawn
@@ -32,21 +52,21 @@ public class SpawnManager : MonoBehaviour
         //Gets a random y position for the fly to spawn.
         float ySpawnPos = Random.Range(-5f, 5f);
         //If last spawn was less than a second ago, won't spawn a fly.
-        if (spawnGap <= 1)
+        if (flySpawnGap <= minFlySpawnTime)
         {
-            spawnGap += Time.deltaTime;
+            flySpawnGap += Time.deltaTime;
             return;
         }
         //If less than 5 seconds since last spawn, may or may not spawn a fly this update.
-        else if (spawnGap <= 5)
+        else if (flySpawnGap <= maxFlySpawnTime)
         {
             if (flyCount < maxFlies)
             {
-                xSpawnPos = Random.Range(-1, spawnFactor);
-                if (xSpawnPos > -1 && xSpawnPos < spawnFactor - 1)
+                xSpawnPos = Random.Range(-1, flySpawnFactor);
+                if (xSpawnPos > -1 && xSpawnPos < flySpawnFactor - 1)
                 {
                     //Debug.Log("NO SPAWN");
-                    spawnGap += Time.deltaTime;
+                    flySpawnGap += Time.deltaTime;
                     return;
                 }
                 else if (xSpawnPos == -1)
@@ -55,7 +75,7 @@ public class SpawnManager : MonoBehaviour
                     newFly.transform.Rotate(0, 0, Random.Range(-flyAngleFactor, flyAngleFactor));
                     newFly.transform.parent = GameObject.Find("Flys").transform;
                     flyCount++;
-                    spawnGap = 0;
+                    flySpawnGap = 0;
                     return;
                 }
                 else
@@ -64,13 +84,13 @@ public class SpawnManager : MonoBehaviour
                     flyCount++;
                     newFly.transform.Rotate(0, 0, Random.Range(180 - flyAngleFactor, 180 + flyAngleFactor));
                     newFly.transform.parent = GameObject.Find("Flys").transform;
-                    spawnGap = 0;
+                    flySpawnGap = 0;
                     return;
                 }
             }
             else
             {
-                spawnGap += Time.deltaTime;
+                flySpawnGap += Time.deltaTime;
                 return;
             }
         }
@@ -86,7 +106,7 @@ public class SpawnManager : MonoBehaviour
                     newFly.transform.Rotate(0, 0, Random.Range(-flyAngleFactor, flyAngleFactor));
                     newFly.transform.parent = GameObject.Find("Flys").transform;
                     flyCount++;
-                    spawnGap = 0;
+                    flySpawnGap = 0;
                     return;
                 }
                 else
@@ -95,14 +115,131 @@ public class SpawnManager : MonoBehaviour
                     newFly.transform.Rotate(0, 0, Random.Range(180 - flyAngleFactor, 180 + flyAngleFactor));
                     newFly.transform.parent = GameObject.Find("Flys").transform;
                     flyCount++;
-                    spawnGap = 0;
+                    flySpawnGap = 0;
                     return;
                 }
             }
             else
             {
-                spawnGap += Time.deltaTime;
+                flySpawnGap += Time.deltaTime;
                 return;
+            }
+        }
+    }
+
+    //Spawns a bird at left, right, top or bottom of level.
+    void SpawnBird()
+    {
+        int spawnChoice = Random.Range(1, birdSpawnFactor);
+        Vector2 spawnPos;
+
+        if (birdSpawnGap <= minBirdSpawnTime)
+        {
+            birdSpawnGap += Time.deltaTime;
+            return;
+        }
+        else if (birdSpawnGap <= maxBirdSpawnTime)
+        {
+            if (birdCount < maxBirds)
+            {
+                if (spawnChoice == 1)
+                {
+                    spawnPos = new Vector2(-11f, Random.Range(-5f, 5f));
+                    GameObject newBird = Instantiate(birdPrefab, spawnPos, Quaternion.identity);
+                    newBird.transform.Rotate(0f, 0f, 180f);
+                    newBird.transform.parent = GameObject.Find("Birds").transform;
+                    birdCount++;
+                    birdSpawnGap = 0;
+                    return;
+                }
+                else if (spawnChoice == 2)
+                {
+                    spawnPos = new Vector2(11f, Random.Range(-5f, 5f));
+                    GameObject newBird = Instantiate(birdPrefab, spawnPos, Quaternion.identity);
+                    newBird.transform.parent = GameObject.Find("Birds").transform;
+                    birdCount++;
+                    birdSpawnGap = 0;
+                    return;
+                }
+                else if (spawnChoice == 3)
+                {
+                    spawnPos = new Vector2(Random.Range(-4.5f, 4.5f), 13f);
+                    GameObject newBird = Instantiate(birdPrefab, spawnPos, Quaternion.identity);
+                    newBird.transform.Rotate(0f, 0f, 90f);
+                    newBird.transform.parent = GameObject.Find("Birds").transform;
+                    birdCount++;
+                    birdSpawnGap = 0;
+                    return;
+                }
+                else if (spawnChoice == 4)
+                {
+                    spawnPos = new Vector2(Random.Range(-4.5f, 4.5f), -13f);
+                    GameObject newBird = Instantiate(birdPrefab, spawnPos, Quaternion.identity);
+                    newBird.transform.Rotate(0f, 0f, -90f);
+                    newBird.transform.parent = GameObject.Find("Birds").transform;
+                    birdCount++;
+                    birdSpawnGap = 0;
+                    return;
+                }
+                else
+                {
+                    birdSpawnGap += Time.deltaTime;
+                }
+            }
+            else
+            {
+                birdSpawnGap += Time.deltaTime;
+                return;
+            }
+        }
+        else
+        {
+            if (birdCount < maxBirds)
+            {
+                spawnChoice = Random.Range(1, 5);
+                if (spawnChoice == 1)
+                {
+                    spawnPos = new Vector2(-11f, Random.Range(-5f, 5f));
+                    GameObject newBird = Instantiate(birdPrefab, spawnPos, Quaternion.identity);
+                    newBird.transform.Rotate(0f, 0f, 180f);
+                    newBird.transform.parent = GameObject.Find("Birds").transform;
+                    birdCount++;
+                    birdSpawnGap = 0;
+                    return;
+                }
+                else if (spawnChoice == 2)
+                {
+                    spawnPos = new Vector2(11f, Random.Range(-5f, 5f));
+                    GameObject newBird = Instantiate(birdPrefab, spawnPos, Quaternion.identity);
+                    newBird.transform.parent = GameObject.Find("Birds").transform;
+                    birdCount++;
+                    birdSpawnGap = 0;
+                    return;
+                }
+                else if (spawnChoice == 3)
+                {
+                    spawnPos = new Vector2(Random.Range(-4.5f, 4.5f), 13f);
+                    GameObject newBird = Instantiate(birdPrefab, spawnPos, Quaternion.identity);
+                    newBird.transform.Rotate(0f, 0f, 90f);
+                    newBird.transform.parent = GameObject.Find("Birds").transform;
+                    birdCount++;
+                    birdSpawnGap = 0;
+                    return;
+                }
+                else if (spawnChoice == 4)
+                {
+                    spawnPos = new Vector2(Random.Range(-4.5f, 4.5f), -13f);
+                    GameObject newBird = Instantiate(birdPrefab, spawnPos, Quaternion.identity);
+                    newBird.transform.Rotate(0f, 0f, -90f);
+                    newBird.transform.parent = GameObject.Find("Birds").transform;
+                    birdCount++;
+                    birdSpawnGap = 0;
+                    return;
+                }
+                else
+                {
+                    birdSpawnGap += Time.deltaTime;
+                }
             }
         }
     }

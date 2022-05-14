@@ -8,7 +8,22 @@ public class PlayerController : MonoBehaviour
     GameManager gameManager;
 
     [SerializeField]
+    LevelUIController levelUIController;
+
+    [SerializeField]
+    AudioSource jumpAudio;
+
+    [SerializeField]
+    AudioSource tongueAudio;
+
+    [SerializeField]
+    AudioSource birdHitAudio;
+
+    [SerializeField]
     Animator tongueAnimator;
+
+    [SerializeField]
+    Animator birdHitAnimator;
 
     [SerializeField]
     BoxCollider2D tongueCollider;
@@ -28,6 +43,7 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         gameManager = GameObject.Find("Game Manager").GetComponent<GameManager>();
+        levelUIController = GameObject.Find("Level UI Controller").GetComponent<LevelUIController>();
         gameManager.lastLilypad = CheckForLilypad(transform.position);
     }
 
@@ -45,6 +61,7 @@ public class PlayerController : MonoBehaviour
             //Triggers the tongue animation when the left mouse button is clicked.
             if (Input.GetMouseButtonDown(0))
             {
+                tongueAudio.Play();
                 tongueAnimator.SetTrigger("Active");
                 tongueCollider.enabled = true;
             }
@@ -98,6 +115,7 @@ public class PlayerController : MonoBehaviour
                     {
                         //Sets isJumping to true to ensure the player can't control the frog while in flight.
                         isJumping = true;
+                        jumpAudio.Play();
                         //Calculates the distance the player will jump and what position this ends at.
                         Vector2 jumpDistance = dirToMouse * jumpPower;
                         jumpToPoint = new Vector2(transform.position.x + jumpDistance.x, transform.position.y + jumpDistance.y);
@@ -145,6 +163,22 @@ public class PlayerController : MonoBehaviour
             targetJump = null;
             isJumping = false;
             gameManager.HitFence();
+        }
+        if (collision.gameObject.CompareTag("Bird"))
+        {
+            if (gameManager.lives - 1 > 0)
+            {
+                birdHitAudio.Play();
+            }
+            birdHitAnimator.SetTrigger("Active");
+            targetJump = null;
+            isJumping = false;
+            gameManager.HP--;
+            levelUIController.HPText(gameManager.HP);
+            if (gameManager.HP <= 0)
+            {
+                gameManager.BirdDeath();
+            }
         }
     }
 }
